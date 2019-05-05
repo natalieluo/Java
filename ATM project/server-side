@@ -1,0 +1,75 @@
+package teacher;
+
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class ATMServer {
+
+public static void main(String args[]) throws IOException{
+FileReader fr =newFileReader("C:\\Users\\J301-02\\Desktop\\bank.txt");          
+//讀取檔案
+		FileWriter fw = new FileWriter("C:\\Users\\J301-02\\Desktop\\bank.txt",true);    
+//寫入檔案
+		ServerSocket server_socket = null;  
+		Socket s = null;
+		String readData = "";
+		String can="";
+		String can1 = "";
+		
+		try{
+			server_socket = new ServerSocket(20001);   
+//建立server_socket物件，並指定傾聽阜為20001
+		}catch(IOException e){
+			System.out.println("連接失敗");   
+		}
+		System.out.println("Waiting connection....");
+		try{
+			s = server_socket.accept();  
+//客戶端連線完成，取得socket物件
+//accept會停頓等待客戶連線端，當客戶連線端回傳一socket物件
+		}catch(IOException e){
+			System.out.println("連接失敗");
+		}
+		System.out.println("Connection successful");    
+//連線完成印出Connection successful
+		 
+		BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));  
+		PrintWriter out = new PrintWriter(s.getOutputStream());
+		char[] data = new char[128];
+		
+		while(true){
+			//讀取txt檔,並且傳送到Client端
+			int num = fr.read(data);
+			String str = new String(data,0,num);
+			for(int i = 0 ; i <data.length ;i++){
+				can = can + data[i];
+			}
+			out.print(can);
+			out.flush();
+			out.close();
+			fr.close();
+			//接收Clinet端資訊,並且寫入txt檔
+			
+			readData = in.readLine();
+			String[] names = readData.split(":"); 
+			in.close();
+			for(int y=0;y<names.length;y++){
+				can1 = can1 + names[y] + ":";
+			}
+			fw.write(can1);
+			fw.flush();
+			fw.close();
+			
+			break;
+		}
+		fr.close();
+		fw.close();
+		in.close();
+		out.close();
+		s.close();
+		server_socket.close();
+	}
+}
