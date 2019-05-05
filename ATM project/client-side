@@ -1,0 +1,454 @@
+package aaa;
+import java.util.Scanner;
+import java.io.*;
+import java.net.Socket;
+
+
+class WithdrawMoney{            //提款
+	
+	public static void withdrawMoney()
+    { 
+	 
+        if(BalanceInquiry.balance==0)
+        {  
+        	if(ATMMachine.input==2){ //在此之input是利用 類別 ATMMachine 中宣告之變數，不可在這立在宣告一次，因為讀到的不是相同的值，會有錯誤
+            System.out.println("\tYour current balance is zero.");
+            System.out.println("\tYou cannot withdraw!");
+            System.out.println("\tYou need to deposit money first.");
+            }
+            if(ATMMachine.input==1){
+            	 System.out.println("\t你的帳戶餘額為零.");
+ 	            System.out.println("\t您無法提款!");
+ 	            System.out.println("\t您需要先存錢.");
+            }
+            
+        }
+        else if(BalanceInquiry.balance<=500)    //戶頭存款小於500時無法提款
+        {   
+        	if(ATMMachine.input==2){//在此之input是利用 類別 ATMMachine 中宣告之變數，不可在這立在宣告一次，因為讀到的不是相同的值，會有錯誤            
+            System.out.println("\tYou do not have sufficient money to withdraw");
+            System.out.println("\tChecked your balance to see your money in the bank.");
+            }
+            if(ATMMachine.input==1){
+            System.out.println("\t帳戶餘額不足");
+            System.out.println("\t請再次確認您帳戶餘額.");
+            }
+        }
+        else if(Withdraw.withdraw > BalanceInquiry.balance) //當你欲提取之金額大於戶頭的錢，無法提款
+        {    
+        	if(ATMMachine.input==2){//在此之input是利用 類別 ATMMachine 中宣告之變數，不可在這立在宣告一次，因為讀到的不是相同的值，會有錯誤
+            System.out.println("\tThe amount you withdraw is greater than to your balance");
+            
+            System.out.println("\tPlease check the amount you entered.");
+            }
+             if(ATMMachine.input==1){
+            	 System.out.println("\t帳戶餘額不足");
+                 System.out.println("\t請再次確認您帳戶餘額.");
+                 } 
+             
+        }
+	
+	    else         //可以提款
+	    {   if(ATMMachine.input==2)//在此之input是利用 類別 ATMMachine 中宣告之變數，不可在這立在宣告一次，因為讀到的不是相同的值，會有錯誤
+            {
+                BalanceInquiry.balance = BalanceInquiry.balance - Withdraw.withdraw;
+                System.out.println("\n\tYou withdraw the amount of Php " + Withdraw.withdraw); //印出提款之金額
+            }
+            if(ATMMachine.input==1){
+            	BalanceInquiry.balance = BalanceInquiry.balance - Withdraw.withdraw;
+                System.out.println("\n\t你提款的金額  " + Withdraw.withdraw);    //印出提款之金額
+            }
+        }
+
+    }
+}
+
+
+class CheckBalance{     //餘額查詢
+	
+	public static void checkBalance()     //餘額查詢方法
+    {   
+		
+		if(ATMMachine.input==2)//在此之input是利用 類別 ATMMachine 中宣告之變數，不可在這立在宣告一次，因為讀到的不是相同的值，會有錯誤
+        System.out.println("\tYour current balance is " + BalanceInquiry.getBalance());  //印出餘額
+    
+        if(ATMMachine.input==1)
+        	System.out.println("\t你的帳戶餘額為 " + BalanceInquiry.getBalance());    //印出餘額
+    }
+}
+
+class DepositMoney{   //存款
+	
+	public static void depositMoney()  //存款方法
+    {  
+		if(ATMMachine.input==2){ //在此之input是利用 類別 ATMMachine 中宣告之變數，不可在這立在宣告一次，因為讀到的不是相同的值，會有錯誤
+        System.out.println("\tYou deposited the amount of " + Deposit.getDeposit());
+		}
+        if(ATMMachine.input==1){
+        	System.out.println("\t您存入的金額為 " + Deposit.getDeposit());
+        }
+    }
+}
+
+class Deposit extends ATMMachine       //存錢功能
+{
+    static double deposit;
+    public void setDeposit(double d)  //存款金額之建構子
+    {
+        deposit = d;                   //將取得欲存款之金額存入"deposit"
+    }
+    public static double getDeposit()   //存款中的回傳取得之金額方法
+    {
+        return deposit;              //回傳欲存款之金額
+    }
+}
+
+
+class Withdraw extends ATMMachine            //領錢功能
+{
+    static double withdraw = 0;             //初始"withdraw"的值為0
+    public void setWithdraw(double w)      //領錢之建構子
+    {
+        withdraw = w;
+    }
+    public static double getWithdraw()     //回傳取得之金額方法
+    {
+        return withdraw;                    //回傳欲提款之金額
+    }
+}
+
+
+class BalanceInquiry extends ATMMachine      //設定餘額
+{
+    static double balance=0;                //初始"balance"的值為0
+    public void setBalance(double b)        //餘額之建構子
+    {
+        balance = b;
+    }
+    public static double getBalance()      //查詢餘額中回傳餘額之方法
+    {
+        return balance;                     //回傳餘額之金額
+    }    
+}
+
+
+
+public class ATMMachine 
+{    
+	public static int input;    //宣告一個整數的input變數，作為之後判斷中英文之依據
+ 
+    
+    public static void main(String[] args) throws IOException
+    {   int socket_port = 20007;       //指定port號
+	    Socket s = null;              //設一空管子
+	    PrintWriter out = null;       //設一輸出資料的空管子
+	    BufferedReader in = null;     //設一讀進資料的空管子
+	    try{
+		   s = new Socket("120.118.88.3",socket_port);      //
+		   out = new PrintWriter(s.getOutputStream());
+		   in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+	    }catch(IOException e){
+		   System.out.println("連接失敗");
+	    }
+	    
+        Scanner read = new Scanner(System.in);
+        int select = 0;     //此變數用來存放
+        int choice = 0;
+        
+        int  b=-1;
+        int i;
+        int count=0;                  //存放迴圈跑的次數
+        
+        
+        /*char data[]=new char[128];                  // 建立可容納128個字元的陣列
+        FileReader fr=new FileReader("bank.txt");  // 建立物件fr
+        
+        int num= fr.read(data);                  // 將資料讀入字元陣列data內
+        String str=new String(data,0,num); */     // 將字元陣列轉換成字串
+        //fr.close();
+        
+        String str =in.readLine();                 //取得server端傳送過來的資料(問題:無法先取得資料,一定要先寫入才可以取得資料卡在這裡)
+        String[] names = str.split(":");
+        in.close();
+        
+        while(true){
+        	
+        count++;
+        System.out.println("====================================================");
+        System.out.println("\tWelcome to this simple ATM machine");
+        System.out.println("====================================================");
+        System.out.println();
+        System.out.println("\t\t中文請按1    English please press2");    //選擇中英文
+        input=read.nextInt();            //input存放讀取進來的中英文選擇
+          
+
+        if (input==2){System.out.print("What's your account number? ");}
+        if (input==1){System.out.print("請輸入您的帳號 ");}	
+        String str2 = read.next();  //存放使用者輸入之帳號
+        
+        if (input==2){System.out.print("What's your password? ");}
+        if (input==1){System.out.print("請輸入您的密碼 ");}
+        String str3 = read.next();   //存盎使用這輸入之密碼
+        
+        for(i=0;i<names.length;i=i+3){
+        if(str2.equals(names[i])==true)
+        if(str3.equals(names[i+1])==true){   //同時比對密碼與帳號，兩者都成立才可以繼續執行
+        
+        do
+        {
+        	try{	
+        		do {
+            			
+        				if(input==1)                                       //若入的是"1"則為中文
+        				{
+        					System.out.println("\t\t挑選atm交易");
+        					System.out.println("\t\t[1] 存款");
+        					System.out.println("\t\t[2] 提款");
+        					System.out.println("\t\t[3] 查詢餘額");
+        					System.out.println("\t\t[4] 更改密碼");
+        					System.out.println("\t\t[5] 取消交易");
+        				}
+        				else if (input==2)                                //若輸入的是"2"則為英文
+        				{ 
+        					System.out.println("\t\tPlease select ATM Transactions");
+        					System.out.println("\t\t[1] Deposit");
+        					System.out.println("\t\t[2] Withdraw");
+        					System.out.println("\t\t[3] Balance Inquiry");
+        					System.out.println("\t\t[4] Change pass word");
+        					System.out.println("\t\t[5] cancel");
+        					System.out.print("\n\t\tWhat would you like to do? ");
+        				}
+        				
+
+                    select = read.nextInt();                                                     
+                        if(select>5)                   //輸入之數字超過"5"之處理
+                        {   
+                        	if (input==2){ 
+                            System.out.println("\n\tPlease select correct transaction.");
+                        	}
+                            if (input==1) {
+                            System.out.println("\n\t請輸入正確選項.");
+                            }
+                        }
+                        else
+                        {
+                        	switch (select)                       //switch只能處理整數類的資料型態
+                        	{
+                            	case 1:                           //存款功能
+                            		if (input==1){
+                            			FileWriter fw=new FileWriter("C:\\Users\\J301-02\\Desktop\\bank.txt");     //讀取bank中的檔案
+                            			System.out.print("\n\t請輸入欲存款之金額: ");       //讀取後顯示文字
+                                		Deposit.deposit = read.nextDouble();          
+                                		
+                                		BalanceInquiry.balance=Double.parseDouble(names[b+3]);///////////////////////
+                                		BalanceInquiry.balance = Deposit.deposit + BalanceInquiry.balance;
+                                		
+                                		DepositMoney.depositMoney();
+                                        names[b+3]=Double.toString(BalanceInquiry.balance);///////////////////////
+                                        String can="";                        //重新設一名稱給記事本中的字串，並將之清空
+                                        
+                                        for(int a=0;a<names.length;a++){      //將資料一一覆蓋於原字串上
+                                        	can=can+names[a]+":";           
+                                        }
+      
+                                        System.out.print(can);
+                                        fw.write(can);
+                                        fw.close();
+                                        out.print(can);                                       //寫入Server端
+                                        out.flush();
+                                        out.close();
+                                        //fw.write(can);
+                                        //fw.close();
+                                		break;
+                            		}
+                            		if (input==2){
+                            		FileWriter fw=new FileWriter("C:\\Users\\J301-02\\Desktop\\bank.txt");
+                            		System.out.print("\n\tEnter the amount of money to deposit: ");
+                            		Deposit.deposit = read.nextDouble();
+                            		
+                            		BalanceInquiry.balance=Double.parseDouble(names[b+3]);///////////////////
+                                    BalanceInquiry.balance = Deposit.deposit + BalanceInquiry.balance;
+                                    
+                                    DepositMoney.depositMoney();
+                                    names[b+3]=Double.toString(BalanceInquiry.balance);///////////////////////
+                                    String can="";                        //重新設一名稱給記事本中的字串，並將之清空
+                                    for(int a=0;a<names.length;a++){      //將資料一一覆蓋於原字串上
+                                    	can=can+names[a]+":";           
+                                    }
+                                    fw.write(can);
+                                    fw.close();
+                                    
+                                    break;
+                            		
+                            		}
+                            		
+                                
+                            	case 2:                                                                   //提款功能        
+                            		if (input==2){
+                            		FileWriter fw1=new FileWriter("C:\\Users\\J301-02\\Desktop\\bank.txt");
+                            		System.out.print("\n\tTo withdraw, make sure that you have sufficient balance in your account.");
+                            		System.out.println();
+                            		System.out.print("\tEnter amount of money to withdraw: ");
+                            		Withdraw.withdraw = read.nextDouble();
+                            		
+                            		WithdrawMoney.withdrawMoney();
+                            		names[b+3]=Double.toString(BalanceInquiry.balance);////////////////////////////
+                            		
+                                    String can1="";                        //重新設一名稱給記事本中的字串，並將之清空
+                                    for(int a=0;a<names.length;a++){      //將資料一一覆蓋於原字串上
+                                    	can1=can1+names[a]+":";           
+                                    }
+                                    fw1.write(can1);
+                                    fw1.close();
+                            		break;
+                            		}
+                            		if (input==1){
+                            			FileWriter fw1=new FileWriter("C:\\Users\\J301-02\\Desktop\\bank.txt");
+                            			System.out.print("\n\t請先確認您有足夠金額在帳戶中.");
+                                		System.out.println();
+                                		System.out.print("\t請輸入您欲提款之金額: ");
+                                		Withdraw.withdraw = read.nextDouble();                                		
+                                		WithdrawMoney.withdrawMoney();
+                                		
+                                		names[b+3]=Double.toString(BalanceInquiry.balance);/////////////////////////
+                                        String can1="";                        //重新設一名稱給記事本中的字串，並將之清空
+                                        for(int a=0;a<names.length;a++){      //將資料一一覆蓋於原字串上
+                                        	can1=can1+names[a]+":";           
+                                        }
+                                        fw1.write(can1);
+                                        fw1.close();
+                                		break;
+                            		}
+                            	case 3:                                                                   //查詢餘額
+                            		CheckBalance.checkBalance();
+                                    BalanceInquiry bi =new BalanceInquiry();
+                                    bi.setBalance(Double.parseDouble(names[b+2]));
+                            		break; 
+                            	case 4:
+                                	Scanner read4 = new Scanner(System.in);
+                                	
+                                    	char data4[]=new char[128]; // 建立可容納128個字元的陣列
+                                        FileReader fr4=new FileReader("C:\\Users\\J301-02\\Desktop\\bank.txt");  // 建立物件fr1                                    
+                                        int num4=fr4.read(data4);     // 將資料讀入字元陣列data內
+                                        String str4=new String(data4,0,num4);     // 將字元陣列轉換成字串
+                                        
+                                        String[] names4 = str4.split(":");
+                                        fr4.close();
+                                        boolean ok1=true;
+                                        while(ok1){
+                                        	if (input==2)System.out.print("Please enter your new password ");
+                                        	if (input==1)System.out.print("請輸入新密碼 .");
+                                        String str8 = read4.next();
+                                        if(str8.equals(names[b+2])==false){//////////////////////////
+                                        	if (input==2)System.out.print("Please enter your new password again");
+                                        	if (input==1)System.out.print("起再輸入一次新密碼.");
+                                        	String str9 = read4.next();
+                                        	if(str9.equals(str8)==true){
+                                        		if (input==2)System.out.print("you have changed your password ,plase enter your new password next time");
+                                        		if (input==1)System.out.print("更改密碼成功，下次登入請使用新密碼.");
+                                        		FileWriter fw2=new FileWriter("C:\\Users\\J301-02\\Desktop\\bank.txt");
+                                        		names[b+2]=str9;///////////////////
+                                        		String can2="";
+                                        		
+                                        		for(int a=0;a<names.length;a++){      //將資料一一覆蓋於原字串上
+                                                	can2=can2+names[a]+":";           
+                                                }
+                                        		fw2.write(can2);
+                                        		fw2.close();
+                                        		 
+                                        	}else{
+                                        		if (input==2)System.out.print("Please enter your new password again");
+                                        	    if (input==1)System.out.print("請再輸入一次您的新密碼.");
+                                        	}
+                                        }
+                                        break;
+                                        }
+                                        break;
+                                            
+                            	default:                                                                  //離開
+                            		if (input==2){System.out.print("\n\tTransaction exited.");}
+                            		if (input==1){System.out.print("\n\t交易失敗.");}
+                            		
+                                	break;    
+                        	}
+                        }
+                        out.close();//////////////
+                   		in.close();
+                   		s.close();////////////////  
+                   		
+        			}while(select>5);                                                                     //無此選項再選一次
+            do {                                                                                          //選擇是否繼續
+                try
+                {   if (input==2){
+                    System.out.println("\n\tWould you like to try another transaction?");
+                    System.out.println("\n\tPress [1] Yes \n\tPress [2] No");
+                    System.out.print("\tEnter choice: ");
+                    choice = read.nextInt();
+                     }
+                    if (input==1){
+                	System.out.println("\n\t交易完成後是否繼續交易?");
+                    System.out.println("\n\t [1] 是的  \n\t [2] 否");
+                    System.out.print("\t請輸入你的選項: ");
+                    choice = read.nextInt();
+                }
+                    if(choice>2)
+                      { if (input==2)System.out.print("\n\tPlease select correct choice.");   
+                        if (input==1)System.out.print("\n\t請輸入正確選項.");   	
+                        }
+                    } 
+                catch(Exception e)    
+                    {   if (input==2){
+                        System.out.println("\tError Input! Please enter a number only.");
+                        read = new Scanner(System.in);
+                        System.out.println("\tEnter yout choice:");
+                        choice = read.nextInt();
+                        }
+                        if (input==1){
+                        	System.out.println("\t輸入錯誤! 請輸入數字.");
+                            read = new Scanner(System.in);
+                            System.out.println("\t輸入您的選項:");
+                            choice = read.nextInt();
+                            
+                        }
+                    }
+            } while(choice>2);
+        }
+        catch(Exception e)
+                {   if (input==2){
+                    System.out.println("\tError Input! Please enter a number only.");
+                    read = new Scanner(System.in);
+                    System.out.println("\tEnter yout choice:");
+                    select = read.nextInt();
+                    }
+                    if (input==1){
+                    	System.out.println("\t輸入錯誤! 請輸入數字.");
+                        read = new Scanner(System.in);
+                        System.out.println("\t輸入您的選項:");
+                        select = read.nextInt();
+                    }
+                }
+                
+        }while(choice<=1);
+        if (input==2)System.out.println("\n\tThank you for using this simple ATM Machine.");
+        
+        if (input==1)System.out.println("\n\tT謝謝使用，請稍後插卡.");
+        	
+    }
+        
+        		else{
+                    if(count>2){
+                    	System.out.println("\n\tT帳秘輸入超過三次.");
+                    
+                    System.exit(1);}
+                    //
+        		    
+                    out.close();//////////////
+               		in.close();
+               		s.close();////////////////   
+                    
+         	           
+         		}
+        }
+   }
+       
+}
